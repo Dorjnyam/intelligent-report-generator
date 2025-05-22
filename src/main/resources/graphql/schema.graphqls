@@ -1,0 +1,30 @@
+scalar DateTime
+scalar Long
+
+type Query {
+    report(id: String!): ReportInfo
+    reportsBySource(sourceUrl: String!): [ReportInfo!]!
+}
+
+type Mutation {
+    generateReport(
+        sourceUrl: String!,
+        title: String,
+        format: ReportFormat
+    ): [ReportInfo!]!
+}
+
+type ReportInfo {
+    id: String!
+    fileName: String!
+    format: String!
+    sizeInBytes: Long!
+    generatedAt: DateTime!
+    downloadUrl: String
+}
+
+enum ReportFormat {
+    PDF
+    DOCX
+    BOTH
+}

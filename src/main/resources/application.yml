@@ -1,0 +1,103 @@
+# application.yml
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: intelligent-report-generator
+  
+  # GraphQL Configuration
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
+    
+  # Web Configuration
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: NON_NULL
+
+# Application Specific Configuration
+app:
+  base-url: ${BASE_URL:http://localhost:8080}
+  
+# OpenAI Configuration
+openai:
+  api:
+    key: ${OPENAI_API_KEY:}
+  model: ${OPENAI_MODEL:gpt-3.5-turbo}
+
+# Logging Configuration
+logging:
+  level:
+    com.reportservice: DEBUG
+    org.springframework.web: INFO
+    org.apache.http: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management/Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    prometheus:
+      metrics:
+        enabled: true
+      export:
+        enabled: true
+
+      # HTTP Client Configuration
+http:
+  client:
+    connection-timeout: 30000
+    read-timeout: 60000
+    max-connections: 100
+    max-connections-per-route: 20
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    com.reportservice: DEBUG
+    org.springframework: DEBUG
+
+app:
+  base-url: http://localhost:8080
+
+---
+# Production Profile  
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    com.reportservice: INFO
+    org.springframework: WARN
+    root: WARN
+
+app:
+  base-url: ${BASE_URL:https://your-production-domain.com}
