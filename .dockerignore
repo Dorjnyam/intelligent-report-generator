@@ -1,0 +1,8 @@
+target/
+*.log
+.git
+.gitignore
+README.md
+.env
+docker-compose.override.yml
+*.md

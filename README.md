@@ -165,6 +165,86 @@ MIT License — see [`LICENSE`](./LICENSE) for details.
 
 ---
 
+
+## 🐳 Docker + Prometheus + Grafana суурилуулалт (Ажиглалт хийх орчин)
+
+Төслийг **ажиглаж хянах**, **гүйцэтгэл хэмжих**, **алдааг эрт илрүүлэх** зорилгоор Prometheus ба Grafana-г Docker орчинд суулгаж ашиглана.
+
+### 📦 Docker Compose тохиргоо
+
+`docker-compose.yml` файл үүсгээд дараах агуулгыг нэмнэ:
+
+```yaml
+version: '3.8'
+services:
+  report-generator:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:
+
+````
+📊 Prometheus тохиргоо
+monitoring/prometheus.yml файл үүсгээд дараах байдлаар тохируулна:
+````
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'report-generator'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['report-generator:8080']
+
+````
+⚙️ Spring Boot тохиргоо (application.yml)
+````
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+````
+📺 Grafana ашиглах
+Хөтчөөр http://localhost:3000 руу орно.
+
+Нэвтрэх нэр/нууц үг: admin / admin
+
+Prometheus-г data source болгоод:
+
+URL: http://prometheus:9090
+
+Дашбоард үүсгэж дараах метрикүүдийг харуулж болно:
+````
+http_server_requests_seconds_count
+
+jvm_memory_used_bytes
+
+process_cpu_usage
+````
 ## 📬 Холбоо барих
 
 Хөгжүүлэгч: `@dorjnyam`
